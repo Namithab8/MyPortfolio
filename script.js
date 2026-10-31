@@ -1,4 +1,4 @@
-// ===== Initialize AOS =====
+// ===== Initialize AOS =====1
 AOS.init({
     duration: 800,
     easing: 'ease-in-out',
@@ -111,31 +111,42 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // ===== Contact Form Handling =====
 const contactForm = document.getElementById('contact-form');
 
-contactForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(contactForm);
     const name = formData.get('name');
     const email = formData.get('email');
-    const subject = formData.get('subject');
-    const message = formData.get('message');
     
-    // Here you would typically send the form data to a server
-    // For now, we'll just show an alert
-    alert(`Thank you ${name}! Your message has been received. I'll get back to you soon at ${email}.`);
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitButton.disabled = true;
     
-    contactForm.reset();
+    try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(`Thank you ${name}! Your message has been sent successfully. I'll get back to you soon at ${email}.`);
+            contactForm.reset();
+        } else {
+            alert('Oops! There was a problem sending your message. Please try again.');
+        }
+    } catch (error) {
+        alert('Oops! There was a problem sending your message. Please try again.');
+    } finally {
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
+    }
 });
 
 // ===== Download Resume Button =====
-const downloadResume = document.getElementById('download-resume');
-
-downloadResume.addEventListener('click', (e) => {
-    e.preventDefault();
-    // Add your resume file path here
-    // For now, we'll show an alert
-    alert('Resume download will be available soon. Please contact me for a copy of my resume.');
-});
+// Resume button links directly to Google Drive, no handler needed
 
 // ===== Active Navigation Link on Scroll =====
 const sections = document.querySelectorAll('section');
